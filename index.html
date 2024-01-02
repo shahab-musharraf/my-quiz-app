@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Quiz App</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: sans-serif;
+            overflow: auto;
+        }
+
+        body{
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container{
+            width: 50%;
+            padding: 10px;
+            box-shadow: 0px 0px 10px 3px rgb(26, 25, 25);
+        }
+        .header{
+            background-color: rgb(26, 25, 25);
+            width: 100%;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .header h1{
+            color: white;
+            text-align: center;
+            margin-block: 10px;
+        }
+        .miniHeader{
+            color: white;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .qna{
+            margin-block: 10px;
+        }
+        .question{
+            font-weight: bold;
+        }
+        .optionParent{
+            padding: 10px 0;
+        }
+        .option{
+            border: 1px solid rgb(167, 163, 163);
+            margin-block: 10px;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .option.correct{
+            background-color: green;
+            color: white;
+            font-weight: bold;
+        }
+        .option.incorrect{
+            background-color: red;
+            color: white;
+            font-weight: bold;
+        }
+        .option:active{
+            background-color: grey;
+            color: white;
+        }
+        .submitBtn{
+            display: block;
+            background-color: rgb(26, 25, 25);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+        .submitBtn:hover{
+            box-shadow: 0px 0px 5px 3px grey;
+        }
+        .submitBtn:active{
+            background-color: green;
+            transform: scale(0.9);
+        }
+        .result {
+            display: flex;
+            margin-block: 20px;
+            padding: 20px;
+            justify-content: space-evenly;
+            align-items: center;
+            font-weight: bold;
+            flex-wrap: wrap;
+            height: 200px;
+        }
+        .result .percentage{
+            color: teal;
+
+        }
+
+        .outOf{
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            border: 2px solid green;
+            font-size: larger;
+        }
+
+        .total{
+            border-top: 2px solid black;
+        }
+        .resultDetails {
+            display: flex;
+            gap: 15px;
+        }
+        .correctAns{
+            color: green;
+        }
+        .wrongAns {
+            color: red;
+        }
+        .skippedAns{
+            color: blue;
+        }
+
+        @media screen and (max-width: 800px) {
+                .resultDetails{
+                    font-size: 12px;
+                    gap: 10px;
+                }
+                .miniHeader{
+                    font-size: small;
+                }
+                .header h1{
+                    font-size: 20px;
+                }
+
+                .outOf{
+                    width: 50px;
+                    height: 50px;
+                    font-size: small;
+                    margin-bottom: 20px;
+                }
+            
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div class="header">
+            <h1>My Quiz App</h1>
+            <div class="miniHeader">
+                <p>Questions <span class="quesCount"></span>/<span class="totalQues"></span></p>
+                <p style="margin-left: 15px;">Score: <span class="scoreCount"></span></p>
+            </div>
+        </div>
+
+        <div class="qna">
+            <p class="question"></p>
+            <div class="optionParent">
+                <p class="option opt1"></p>
+                <p class="option opt2"></p>
+                <p class="option opt3"></p>
+                <p class="option opt4"></p>
+            </div>
+        </div>
+        <div class="result">
+            <!-- Your Total Score is: ${scoreCount} -->
+            <div class="outOf">
+                <p class="obtained"></p>
+                <p class="total"></p>
+            </div>
+            <div class="resultDetails">
+                <div>
+                    <p style="margin-bottom: 15px;">Correct Answered: <span class="correctAns"></span></p>
+                    <p>Wrong Answered: <span class="wrongAns"></span></p>
+                </div>
+                <div>
+                    <p style="margin-bottom: 15px;">Skipped Questions: <span class="skippedAns"></span></p>
+                    <p>You Got: <span class="percentage"></span>%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- submit button -->
+        <button class="submitBtn">Next Question</button>
+    </div>
+</body>
+<script>
+    const ques = document.querySelector('.qna .question');
+    const optionParent = document.querySelector('.optionParent')
+    const options = document.querySelectorAll('.option')
+    const opt1 = document.querySelector('.opt1')
+    const opt2 = document.querySelector('.opt2')
+    const opt3 = document.querySelector('.opt3')
+    const opt4 = document.querySelector('.opt4')
+    const nextBtn = document.querySelector('.submitBtn')
+    const totalQues = document.querySelector('.totalQues')
+    const quesCount = document.querySelector('.quesCount')
+    const score = document.querySelector('.scoreCount')
+    const result = document.querySelector('.result')
+    const obtained = document.querySelector('.obtained')
+    const total = document.querySelector('.total')
+    const percentage =  document.querySelector('.percentage')
+
+    
+    
+
+
+    const qna = [
+        {
+            question: "Javascript is an _______ language?",
+            option1: "Object-Oriented",
+            option2: "Object-Based",
+            option3: "Procedural",
+            option4: "None of the above",
+            ans: "Object-Oriented"
+        },
+        {
+            question: "Which of the following keywords is used to define a variable in Javascript?",
+            option1: "var",
+            option2: "let",
+            option3: "Both 'var' and 'let'",
+            option4: "my_var",
+            ans: "Both 'var' and 'let'"
+        },
+        {
+            question: "Which one of the following also known as Conditional Expression:",
+            option1: "Alternative to if-else",
+            option2: "Switch statement",
+            option3: "If-then-else statement",
+            option4: "immediate if",
+            ans: "immediate if"
+        },
+        {
+            question: "When interpreter encounters an empty statements, what it will do:",
+            option1: "Shows a warning",
+            option2: "Prompts to complete the statement",
+            option3: "Throws an error",
+            option4: "Ignores the statements",
+            ans: "Ignores the statements"
+        },
+        {
+            question: "The 'function' and 'var' are known as:",
+            option1: "Keywords",
+            option2: "Data types",
+            option3: "Declaration statements",
+            option4: "Prototypes",
+            ans: "Declaration statements"
+        },
+        {
+            question: "How do you define a function in JavaScript?",
+            option1: "function myFunction() {}",
+            option2: "let myFunction = function() {};",
+            option3: "const myFunction = () => {};",
+            option4: "All of the above",
+            ans: "All of the above"
+        },
+        {
+            question: "console.log(2 + '2');",
+            option1: "4",
+            option2: "22",
+            option3: '"22"',
+            option4: '"4"',
+            ans: '"22"'
+        },
+        {
+            question: "How do you check if a variable is an array in JavaScript? ",
+            option1: "isArray(x)",
+            option2: "x.isArray()",
+            option3: "x instanceof Array",
+            option4: "typeof Array",
+            ans: "isArray(x)"
+        },
+        {
+            question: "How do you create an empty array in JavaScript?",
+            option1: "let arr = new Array();",
+            option2: "let arr = [];",
+            option3: "let arr = {};",
+            option4: "let arr = null;",
+            ans: "let arr = [];"
+        },
+        {
+            question: "How do you remove the last element from an array?",
+            option1: "removeLast()",
+            option2: "deleteLast()",
+            option3: "pop()",
+            option4: "splice()",
+            ans: "pop()"
+        },
+        {
+            question: "What is the index of the first element in an array?",
+            option1: 0,
+            option2: 1,
+            option3: -1,
+            option4: 10,
+            ans: 0
+        },
+        {
+            question: "What will be the length of the string 'CoderOfTheYear' ?",
+            option1: 12,
+            option2: 14,
+            option3: 11,
+            option4: 13,
+            ans: 14
+        }
+    ]
+
+
+    // show question
+    let idx = 0;
+    let scoreCount = 0;
+    let  questionCount= 0;
+    let totalQuestion = qna.length;
+
+    let correct = 0;
+    let wrong = 0;
+
+
+    const correctAns = document.querySelector('.correctAns')
+    const wrongAns = document.querySelector('.wrongAns')
+    const skippedAns = document.querySelector('.skippedAns')
+
+    
+    function showQuestion (idx){
+        if(idx === totalQuestion-1){
+            nextBtn.textContent = 'Finish';
+        }
+        else{
+            nextBtn.textContent = 'Next Question'
+        }
+        if(idx >= totalQuestion){
+            ques.innerHTML = "";
+            result.style.display = 'flex'
+            obtained.textContent = scoreCount;
+            total.textContent = totalQuestion
+            percentage.textContent = ((scoreCount/totalQuestion)*100).toFixed(2)
+            nextBtn.textContent = 'Play Again';
+            optionParent.style.display = 'none'
+            correctAns.textContent = correct;
+            wrongAns.textContent = wrong;
+            skippedAns.textContent = totalQuestion - (correct+wrong)
+            return;
+        }
+
+        score.textContent = scoreCount
+        totalQues.textContent = totalQuestion
+
+        
+        result.style.display = 'none'
+        let currQues = qna[idx];
+
+        ques.innerHTML = currQues.question;
+
+        opt1.innerHTML = currQues.option1;
+        opt2.innerHTML = currQues.option2;
+        opt3.innerHTML = currQues.option3;
+        opt4.innerHTML = currQues.option4;
+
+
+        quesCount.innerHTML = ++questionCount
+
+    }
+    
+  
+
+    let clicked = false;
+    options.forEach(option => {
+        option.addEventListener('click', ()=> {
+            if(!clicked){
+                const currQuesAns = String(qna[idx].ans)
+                const selectedOpt = option.textContent;
+                console.log(selectedOpt, currQuesAns);
+                console.log(typeof selectedOpt, typeof currQuesAns);
+
+                if(selectedOpt === currQuesAns){
+                    option.classList.add('correct');
+                    score.innerHTML = ++scoreCount;
+                    correct++;
+                }
+                else {
+                    option.classList.add('incorrect');
+                    wrong++;
+                }
+
+                clicked = true;
+            }
+            else {
+                alert('You already choosed the correct, Proceed with next question')
+            }
+        })
+    })
+
+    nextBtn.addEventListener('click', ()=>{
+
+        if(nextBtn.textContent === "Play Again"){
+            nextBtn.textContent = "Next Question"
+            correct =0;
+            wrong = 0;
+            idx = 0;
+            clicked = false;
+            optionParent.style.display = 'block';
+            result.style.display = 'none'
+            scoreCount = 0;
+            score.innerHTML = '0'
+            questionCount = 0
+            options.forEach(option =>{
+                option.classList.remove('correct')
+                option.classList.remove('incorrect')
+            })
+            showQuestion(idx)
+            return;
+        }
+
+        clicked = false;
+        options.forEach(option =>{
+            option.classList.remove('correct')
+            option.classList.remove('incorrect')
+        })
+        idx++;
+        showQuestion(idx)
+    })
+    showQuestion(idx)
+
+    
+</script>
+</html>
